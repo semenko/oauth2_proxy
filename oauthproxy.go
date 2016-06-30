@@ -335,6 +335,9 @@ func (p *OAuthProxy) SignInPage(rw http.ResponseWriter, req *http.Request, code 
 	rw.WriteHeader(code)
 
 	redirect_url := req.URL.RequestURI()
+	if req.Header.Get("X-Original-URI") != "" {
+	   redirect_url = req.Header.Get("X-Original-URI")
+	}
 	if redirect_url == p.SignInPath {
 		redirect_url = "/"
 	}
@@ -601,6 +604,7 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 		if session.Email != "" {
 			req.Header["X-Forwarded-Email"] = []string{session.Email}
 		}
+		rw.Header().Set("Authorization", strings.Join(req.Header["Authorization"], ""))
 	}
 	if p.PassAccessToken && session.AccessToken != "" {
 		req.Header["X-Forwarded-Access-Token"] = []string{session.AccessToken}
