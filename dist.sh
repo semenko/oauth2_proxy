@@ -18,13 +18,12 @@ goversion=$(go version | awk '{print $3}')
 echo "... running tests"
 ./test.sh || exit 1
 
-for os in windows linux darwin; do
+for os in linux; do
     echo "... building v$version for $os/$arch"
     BUILD=$(mktemp -d ${TMPDIR:-/tmp}/oauth2_proxy.XXXXXX)
     TARGET="oauth2_proxy-$version.$os-$arch.$goversion"
     GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -o $BUILD/$TARGET/oauth2_proxy || exit 1
     pushd $BUILD
-    tar czvf $TARGET.tar.gz $TARGET
-    mv $TARGET.tar.gz $DIR/dist
+    mv $TARGET/oauth2_proxy $DIR/dist
     popd
 done
